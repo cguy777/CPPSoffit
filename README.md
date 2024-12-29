@@ -18,12 +18,12 @@ SoffitField is glorified version of a key-value pair.
 ### Main Functions
 
 There are two main functions that help you process SOFFIT streams:  
-`SoffitObject* ReadStream(std::istream& stream)`  
-`void WriteStream(SoffitObject* root, std::ostream& output)`  
+`SoffitObject* ReadStream(std::istream&)`  
+`void WriteStream(SoffitObject*, std::ostream&)`  
 
 There are also two alternate functions to work with `std::string` instead of iostreams:  
-`SoffitObject* ReadStreamFromString(std::string& stream)`  
-`std::string WriteStreamToString(SoffitObject* root, bool indent = true)`  
+`SoffitObject* ReadStreamFromString(std::string&)`  
+`std::string WriteStreamToString(SoffitObject*)`  
 
 Call one of the read functions to create a `SoffitObject*`.  
 You must manually delete the created `SoffitObject*` when you are done with the object.  
