@@ -1,6 +1,6 @@
 # CPPSoffit
 
-CPPSoffit is an Object oriented SOFFIT processor for C++.
+CPPSoffit is an Object oriented SOFFIT processor for C++.  
 See 'SOFFIT Definition.txt' for info on the SOFFIT standard.
 
 ## Basic Usage
