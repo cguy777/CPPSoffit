@@ -28,3 +28,4 @@ There are also two alternate functions to work with `std::string` instead of ios
 Call one of the read functions to create a `SoffitObject*`.  
 You must manually delete the created `SoffitObject*` when you are done with the object.  
 The destructor will also automatically delete all of its child objects and fields.  
+If you created a `SoffitObject*` in-software and want to write it somewhere, call one of the write functions.  
