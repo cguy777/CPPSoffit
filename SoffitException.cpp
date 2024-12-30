@@ -32,25 +32,23 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "CPPSoffit.h"
 #include <sstream>
 
-using namespace std;
-
 namespace CPPSoffit {
     SoffitException::SoffitException() {
         message = "SOFFIT exception encountered";
     }
 
-    SoffitException::SoffitException(const string& message) {
+    SoffitException::SoffitException(const std::string& message) {
         this->message = message;
     }
 
-    SoffitException::SoffitException(const string& message, int soffitLineNumber) {
-        ostringstream oss;
+    SoffitException::SoffitException(const std::string& message, int soffitLineNumber) {
+        std::ostringstream oss;
         oss << "SOFFIT Stream, line " << soffitLineNumber << ": " << message;
         this->message = oss.str();
     }
 
     SoffitException::SoffitException(const SoffitException& se, int soffitLineNumber) {
-        ostringstream oss;
+        std::ostringstream oss;
         oss << "SOFFIT Stream, line " << soffitLineNumber << ": " << se.what();
         this->message = oss.str();
     }

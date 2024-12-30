@@ -36,20 +36,18 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <vector>
 #include <stdexcept>
 
-using namespace std;
-
 namespace CPPSoffit {
 
-    const string SOFFIT_START = "__SoffitStart";
-    const string SOFFIT_END = "__SoffitEnd";
+    const std::string SOFFIT_START = "__SoffitStart";
+    const std::string SOFFIT_END = "__SoffitEnd";
     const char ESCAPE_SEQUENCE = '\\';
 
-    SoffitObject* ReadStream(istream& stream) {
+    SoffitObject* ReadStream(std::istream& stream) {
         int lineNumber = 0;
 
         SoffitObject* root = new SoffitObject("", "");
 
-        string header = _getLine(stream, lineNumber);
+        std::string header = _getLine(stream, lineNumber);
         if (header != SOFFIT_START)
             throw SoffitException("SOFFIT header not found.");
 
@@ -58,19 +56,19 @@ namespace CPPSoffit {
         return root;
     }
 
-    void WriteStream(SoffitObject* root, ostream& output, bool indent) {
+    void WriteStream(SoffitObject* root, std::ostream& output, bool indent) {
         output << SOFFIT_START << "\n";
         _writeObjects(root, output, indent);
         output << SOFFIT_END << "\n";
     }
 
-    SoffitObject* ReadStreamFromString(string& stream) {
-        istringstream iss(stream);
+    SoffitObject* ReadStreamFromString(std::string& stream) {
+        std::istringstream iss(stream);
         return ReadStream(iss);
     }
 
-    string WriteStreamToString(SoffitObject* root, bool indent) {
-        ostringstream oss;
+    std::string WriteStreamToString(SoffitObject* root, bool indent) {
+        std::ostringstream oss;
         WriteStream(root, oss, indent);
         return oss.str();
     }
@@ -79,7 +77,7 @@ namespace CPPSoffit {
     //*********BEGIN INTERNAL IMPLEMENTATION**********
     //************************************************
 
-    void _writeObjects(SoffitObject* object, ostream& output, bool indent) {
+    void _writeObjects(SoffitObject* object, std::ostream& output, bool indent) {
         // Write fields
         for (size_t i = 0; i < object->getAllFields().size(); i++) {
             SoffitField* field = object->getAllFields()[i];
@@ -98,7 +96,7 @@ namespace CPPSoffit {
         }
 
         // Write nested objects
-        for (size_t i = 0; i < object->getAllObjects().size(); i++) {
+        for (int i = 0; i < object->getAllObjects().size(); i++) {
             SoffitObject* currentObject = object->getAllObjects()[i];
 
             //Set indentation
@@ -124,19 +122,19 @@ namespace CPPSoffit {
     }
 
     // Parse an individual SOFFIT object and its contents from the stream
-    void _parseObject(istream& stream, SoffitObject* parent, int lineNumber) {
-        stack<SoffitObject*> stack;
+    void _parseObject(std::istream& stream, SoffitObject* parent, int lineNumber) {
+        std::stack<SoffitObject*> stack;
         stack.push(parent);
 
         while (!stack.empty()) {
             SoffitObject* currentObject = stack.top();
-            string line = _getLine(stream, lineNumber);
+            std::string line = _getLine(stream, lineNumber);
 
             if (line.empty()) {
                 throw SoffitException("Incomplete SOFFIT stream.");
             }
 
-            vector<string> tokens = _getLineTokens(line, lineNumber);
+            std::vector<std::string> tokens = _getLineTokens(line, lineNumber);
 
             //Ensure there are no double quotes in first token (The first token would be an object type or field name)
             if (_containsCharacter(tokens[0], '"'))
@@ -162,12 +160,12 @@ namespace CPPSoffit {
             else if (_isObject(tokens)) {
                 SoffitObject* newObject;
 
-                string objType = tokens[0];
+                std::string objType = tokens[0];
                 if (tokens.size() == 2) {
                     newObject = new SoffitObject(objType);
                 }
                 else {
-                    string objName = _stripQuotations(tokens[1]);
+                    std::string objName = _stripQuotations(tokens[1]);
                     objName = _convertFromEscapeSequence(objName, lineNumber);
                     newObject = new SoffitObject(objType, objName);
                 }
@@ -177,8 +175,8 @@ namespace CPPSoffit {
                 //Handle field
             }
             else if (_isField(tokens)) {
-                string fieldName = tokens[0];
-                string fieldValue = "";
+                std::string fieldName = tokens[0];
+                std::string fieldValue = "";
 
                 //Set value, if defined
                 if (tokens.size() > 1)
@@ -193,9 +191,9 @@ namespace CPPSoffit {
         }
     }
 
-    vector<string> _getLineTokens(string& line, int lineNumber) {
-        vector<string> tokens;
-        string currentToken = "";
+    std::vector<std::string> _getLineTokens(std::string& line, int lineNumber) {
+        std::vector<std::string> tokens;
+        std::string currentToken = "";
 
         int mark = 0;
         bool insideQuotes = false;
@@ -235,8 +233,8 @@ namespace CPPSoffit {
         return tokens;
     }
 
-    string _getLine(istream& stream, int& lineNumber) {
-        string line;
+    std::string _getLine(std::istream& stream, int& lineNumber) {
+        std::string line;
 
         while (getline(stream, line)) {
             lineNumber++;
@@ -250,17 +248,17 @@ namespace CPPSoffit {
     }
 
     //Check if the tokens represent a SOFFIT object
-    bool _isObject(vector<string>& tokens) {
+    bool _isObject(std::vector<std::string>& tokens) {
         return (tokens.size() == 2 && tokens[1] == "{") || (tokens.size() == 3 && tokens[1][0] == '"' && tokens[1].back() == '"');
     }
 
     //Check if the tokens represent a SOFFIT field
-    bool _isField(vector<string>& tokens) {
+    bool _isField(std::vector<std::string>& tokens) {
         return tokens.size() == 1 || (tokens.size() == 2 && tokens[1][0] == '"');
     }
 
-    string _convertFromEscapeSequence(const string& s, int lineNumber) {
-        string result = "";
+    std::string _convertFromEscapeSequence(const std::string& s, int lineNumber) {
+        std::string result = "";
 
         for (int i = 0; i < s.size(); i++) {
             if (s[i] == '\\') {
@@ -296,8 +294,8 @@ namespace CPPSoffit {
         return result;
     }
 
-    string _convertToEscapeSequence(const string& s) {
-        string result = "";
+    std::string _convertToEscapeSequence(const std::string& s) {
+        std::string result = "";
 
         for (char c : s) {
             //Double quote correction
@@ -325,14 +323,14 @@ namespace CPPSoffit {
         return result;
     }
 
-    string _stripQuotations(string& s) {
+    std::string _stripQuotations(std::string& s) {
         return s.substr(1, s.size() - 2);
     }
 
     //Strip leading and trailing whitespace
-    string _stripWhitespace(string& s) {
-        string leading = "";
-        string trailing = "";
+    std::string _stripWhitespace(std::string& s) {
+        std::string leading = "";
+        std::string trailing = "";
 
         //Strip leading
         for (int i = 0; i < s.length(); i++) {
@@ -353,7 +351,7 @@ namespace CPPSoffit {
         return trailing;
     }
 
-    bool _isTokenBlank(string token) {
+    bool _isTokenBlank(std::string token) {
         for (int i = 0; i < token.length(); i++) {
             if (token[i] != ' ' || token[i] != '\t')
                 return false;
@@ -362,7 +360,7 @@ namespace CPPSoffit {
         return true;
     }
 
-    bool _containsCharacter(string s, char c) {
+    bool _containsCharacter(std::string s, char c) {
         for (int i = 0; i < s.length(); i++) {
             if (s[i] == c)
                 return true;

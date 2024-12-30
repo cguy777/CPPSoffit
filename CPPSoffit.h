@@ -134,6 +134,11 @@ namespace CPPSoffit {
         SoffitField* getField(std::string fieldName);
 
         /**
+         * Returns true if this object contains a field with the name specified.
+         */
+        bool hasField(std::string fieldName);
+
+        /**
             * Returns a vector containing pointers of all of the child objects.
             * Vector will be empty if there are no child objects.
             */

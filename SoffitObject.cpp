@@ -31,17 +31,15 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "CPPSoffit.h"
 
-using namespace std;
-
 namespace CPPSoffit {
-    SoffitObject::SoffitObject(string type, string name) {
+    SoffitObject::SoffitObject(std::string type, std::string name) {
         this->type = type;
         this->name = name;
 
         reserveInitialVectorCapacity();
     }
 
-    SoffitObject::SoffitObject(string type) {
+    SoffitObject::SoffitObject(std::string type) {
         this->type = type;
         name = "";
 
@@ -49,26 +47,26 @@ namespace CPPSoffit {
     }
 
     SoffitObject::~SoffitObject() {
-        parent->setParent(nullptr);
+        setParent(nullptr);
 
         //Delete all stored objects
-        for (int i = 0; i < objects.size(); i++) {
+        while (objects.size() > 0) {
             delete objects.back();
             objects.pop_back();
         }
 
         //Delete all stored Fields
-        for (int i = 0; i < fields.size(); i++) {
+        while (fields.size() > 0) {
             delete fields.back();
             fields.pop_back();
         }
     }
 
-    string SoffitObject::getType() {
+    std::string SoffitObject::getType() {
         return type;
     }
 
-    string SoffitObject::getName() {
+    std::string SoffitObject::getName() {
         return name;
     }
 
@@ -80,11 +78,11 @@ namespace CPPSoffit {
         return parent;
     }
 
-    void SoffitObject::setName(string name) {
+    void SoffitObject::setName(std::string name) {
         this->name = name;
     }
 
-    void SoffitObject::setType(string type) {
+    void SoffitObject::setType(std::string type) {
         this->type = type;
     }
 
@@ -99,7 +97,7 @@ namespace CPPSoffit {
         objects.push_back(object);
     }
 
-    SoffitObject* SoffitObject::getObject(string objectName) {
+    SoffitObject* SoffitObject::getObject(std::string objectName) {
         for (int i = 0; i < objects.size(); i++) {
             if (objects.at(i)->getName() == objectName) {
                 return objects.at(i);
@@ -115,7 +113,7 @@ namespace CPPSoffit {
         return nullptr;
     }
 
-    SoffitObject* SoffitObject::getObjectByTypeAndName(string type, string name) {
+    SoffitObject* SoffitObject::getObjectByTypeAndName(std::string type, std::string name) {
         for (int i = 0; i < objects.size(); i++) {
             if (objects.at(i)->getType() == type && objects.at(i)->getName() == name)
                 return objects.at(i);
@@ -124,8 +122,8 @@ namespace CPPSoffit {
         return nullptr;
     }
 
-    vector<SoffitObject*> SoffitObject::getObjectsByName(string objectsName) {
-        vector<SoffitObject*> foundObjects;
+    std::vector<SoffitObject*> SoffitObject::getObjectsByName(std::string objectsName) {
+        std::vector<SoffitObject*> foundObjects;
 
         for (int i = 0; i < objects.size(); i++) {
             if (objects.at(i)->getName() == objectsName) {
@@ -136,8 +134,8 @@ namespace CPPSoffit {
         return foundObjects;
     }
 
-    vector<SoffitObject*> SoffitObject::getObjectsByType(string objectsType) {
-        vector<SoffitObject*> foundObjects;
+    std::vector<SoffitObject*> SoffitObject::getObjectsByType(std::string objectsType) {
+        std::vector<SoffitObject*> foundObjects;
 
         for (int i = 0; i < objects.size(); i++) {
             if (objects.at(i)->getType() == objectsType) {
@@ -148,11 +146,11 @@ namespace CPPSoffit {
         return foundObjects;
     }
 
-    vector<SoffitObject*> SoffitObject::getAllObjects() {
+    std::vector<SoffitObject*> SoffitObject::getAllObjects() {
         return objects;
     }
 
-    SoffitField* SoffitObject::getField(string fieldName) {
+    SoffitField* SoffitObject::getField(std::string fieldName) {
         for (int i = 0; i < fields.size(); i++) {
             if (fields[i]->getName() == fieldName) {
                 return fields[i];
@@ -161,8 +159,17 @@ namespace CPPSoffit {
         return nullptr;
     }
 
-    vector<SoffitField*> SoffitObject::getFieldsByName(string fieldName) {
-        vector<SoffitField*> foundFields;
+    bool SoffitObject::hasField(std::string fieldName) {
+        for (int i = 0; i < fields.size(); i++) {
+            if (fields[i]->getName() == fieldName) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    std::vector<SoffitField*> SoffitObject::getFieldsByName(std::string fieldName) {
+        std::vector<SoffitField*> foundFields;
 
         for (int i = 0; i < fields.size(); i++) {
             if (fields.at(i)->getName() == fieldName) {
@@ -173,7 +180,7 @@ namespace CPPSoffit {
         return foundFields;
     }
 
-    vector<SoffitField*> SoffitObject::getAllFields() {
+    std::vector<SoffitField*> SoffitObject::getAllFields() {
         return fields;
     }
 
@@ -189,7 +196,7 @@ namespace CPPSoffit {
         return parent == nullptr;
     }
 
-    void SoffitObject::deleteObject(string name) {
+    void SoffitObject::deleteObject(std::string name) {
         for (int i = 0; i < objects.size(); i++) {
             if (objects[i]->getName() == name) {
                 delete objects[i];
@@ -199,7 +206,7 @@ namespace CPPSoffit {
         }
     }
 
-    void SoffitObject::deleteObjectsByType(string type) {
+    void SoffitObject::deleteObjectsByType(std::string type) {
         for (int i = 0; i < objects.size(); i++) {
             if (objects[i]->getType() == type) {
                 delete objects[i];
@@ -215,7 +222,7 @@ namespace CPPSoffit {
         }
     }
 
-    void SoffitObject::deleteField(string name) {
+    void SoffitObject::deleteField(std::string name) {
         for (int i = 0; i < fields.size(); i++) {
             if (fields.at(i)->getName() == name) {
                 delete fields[i];
@@ -232,7 +239,7 @@ namespace CPPSoffit {
         }
     }
 
-    void SoffitObject::detachObject(string name) {
+    void SoffitObject::detachObject(std::string name) {
         for (int i = 0; i < objects.size(); i++) {
             if (objects.at(i)->getName() == name) {
                 objects[i]->setParent(nullptr);
@@ -242,7 +249,7 @@ namespace CPPSoffit {
         }
     }
 
-    void SoffitObject::detachObjectsByType(string type) {
+    void SoffitObject::detachObjectsByType(std::string type) {
         for (int i = 0; i < objects.size(); i++) {
             if (objects.at(i)->getType() == type) {
                 objects[i]->setParent(nullptr);
@@ -258,7 +265,7 @@ namespace CPPSoffit {
         objects.clear();
     }
 
-    void SoffitObject::detachField(string name) {
+    void SoffitObject::detachField(std::string name) {
         for (int i = 0; i < fields.size(); i++) {
             if (fields[i]->getName() == name) {
                 fields[i]->setParent(nullptr);

@@ -32,15 +32,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "CPPSoffit.h"
 #include <string>
 
-using namespace std;
-
 namespace CPPSoffit {
-    SoffitField::SoffitField(string name, string value) {
+    SoffitField::SoffitField(std::string name, std::string value) {
         this->name = name;
         this->value = value;
     }
 
-    SoffitField::SoffitField(string name) {
+    SoffitField::SoffitField(std::string name) {
         this->name = name;
         value = "";
     }
@@ -49,11 +47,11 @@ namespace CPPSoffit {
         parent = nullptr;
     }
 
-    string SoffitField::getName() {
+    std::string SoffitField::getName() {
         return name;
     }
 
-    string SoffitField::getValue() {
+    std::string SoffitField::getValue() {
         return value;
     }
 
@@ -68,7 +66,7 @@ namespace CPPSoffit {
         return parent;
     }
 
-    void SoffitField::setValue(string v) {
+    void SoffitField::setValue(std::string v) {
         value = v;
     }
 
