@@ -93,7 +93,6 @@ namespace CPPSoffit {
 
     void SoffitObject::add(SoffitObject* object) {
         object->setParent(this);
-        object->calculateNestingLevel();
         objects.push_back(object);
     }
 
@@ -249,6 +248,16 @@ namespace CPPSoffit {
         }
     }
 
+    void SoffitObject::detachObject(SoffitObject* child) {
+        for (int i = 0; i < objects.size(); i++) {
+            if (objects.at(i) == child) {
+                objects[i]->setParent(nullptr);
+                objects.erase(objects.begin() + i);
+                return;
+            }
+        }
+    }
+
     void SoffitObject::detachObjectsByType(std::string type) {
         for (int i = 0; i < objects.size(); i++) {
             if (objects.at(i)->getType() == type) {
@@ -282,8 +291,17 @@ namespace CPPSoffit {
         fields.clear();
     }
 
+    void SoffitObject::detachFromParant() {
+        //Do nothing if it has no parent/is a root object
+        if (parent == nullptr)
+            return;
+
+        parent->detachObject(this);
+        recursivelyCalculateNestingLevel();
+    }
+
     void SoffitObject::calculateNestingLevel() {
-        if (parent) {
+        if (parent != nullptr) {
             nestingLevel = parent->getNestingLevel() + 1;
         }
         else {
@@ -291,8 +309,23 @@ namespace CPPSoffit {
         }
     }
 
+    void SoffitObject::recursivelyCalculateNestingLevel() {
+        calculateNestingLevel();
+
+        for (int i = 0; i < objects.size(); i++) {
+            objects[i]->parent = this;
+            objects[i]->recursivelyCalculateNestingLevel();
+        }
+
+        for (int i = 0; i < fields.size(); i++) {
+            fields[i]->setParent(this);
+        }
+    }
+
     void SoffitObject::setParent(SoffitObject* p) {
         parent = p;
+        //calculateNestingLevel();
+        recursivelyCalculateNestingLevel();
     }
 
     void SoffitObject::reserveInitialVectorCapacity() {
