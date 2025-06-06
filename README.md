@@ -17,7 +17,7 @@ SoffitField is glorified version of a key-value pair.
 
 ### Main Functions
 
-There are two main functions that help you process SOFFIT streams:  
+There are two main functions implemented in SoffitUtil.cpp that help you process SOFFIT streams:  
 `SoffitObject* ReadStream(std::istream&)`  
 `void WriteStream(SoffitObject*, std::ostream&)`  
 
@@ -28,4 +28,6 @@ There are also two alternate functions to work with `std::string` instead of ios
 Call one of the read functions to create a `SoffitObject*`.  
 You must manually delete the created `SoffitObject*` when you are done with the object.  
 The destructor will also automatically delete all of its child objects and fields.  
-If you created a `SoffitObject*` in-software and want to write it somewhere, call one of the write functions.  
+You can also manually instantiate objects and fields using traditional constructors:  
+`SoffitObject* exampleObject = new SoffitObject("ObjectType", "ObjectName");`  
+There is a plethora methods associated with the SoffitObject and SoffitField classes to help you manage your data in many different ways.
