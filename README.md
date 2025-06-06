@@ -1,6 +1,7 @@
 # CPPSoffit
 
-CPPSoffit is an Object oriented SOFFIT processor for C++.  
+CPPSoffit is an object oriented SOFFIT processor for C++.
+SOFFIT (String Object Framework For Information Transfer) is a general-purpose data serialization framework/format.
 See 'SOFFIT Definition.txt' for info on the SOFFIT standard.
 
 ## Basic Usage
