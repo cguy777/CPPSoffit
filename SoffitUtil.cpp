@@ -56,6 +56,22 @@ namespace CPPSoffit {
         return root;
     }
 
+    SoffitObject* FindInStream(std::istream& stream, std::string type, std::string name) {
+        int lineNumber = 0;
+
+        SoffitObject* root = new SoffitObject("", "");
+
+        std::string header = _getLine(stream, lineNumber);
+        if (header != SOFFIT_START)
+            throw SoffitException("SOFFIT header not found.");
+
+        SoffitObject* foundObject = _findInStream(stream, root, lineNumber, type, name);
+        if(foundObject == nullptr)
+            throw SoffitException("Requested SOFFIT object not found in 'FindInStream' call.");
+
+        return foundObject;
+    }
+
     void WriteStream(SoffitObject* root, std::ostream& output, bool indent) {
         output << SOFFIT_START << "\n";
         _writeObjects(root, output, indent);
@@ -191,6 +207,91 @@ namespace CPPSoffit {
         }
     }
 
+    SoffitObject* _findInStream(std::istream& stream, SoffitObject* parent, int lineNumber, std::string type, std::string name) {
+        SoffitObject* foundObject = nullptr;
+
+        std::stack<SoffitObject*> stack;
+        stack.push(parent);
+
+        while (!stack.empty()) {
+            SoffitObject* currentObject = stack.top();
+            std::string line = _getLine(stream, lineNumber);
+
+            if (line.empty()) {
+                throw SoffitException("Incomplete SOFFIT stream.");
+            }
+
+            std::vector<std::string> tokens = _getLineTokens(line, lineNumber);
+
+            //Ensure there are no double quotes in first token (The first token would be an object type or field name)
+            if (_containsCharacter(tokens[0], '"'))
+                throw SoffitException("SOFFIT syntax error.", lineNumber);
+
+            // Handle various tokens
+            if (tokens.size() == 1 && tokens[0] == "}") {
+                if (!currentObject->isRoot()) {
+                    stack.pop();
+
+                    //Check if we just parsed the requested object
+                    if (currentObject->getType() == type && currentObject->getName() == name) {
+                        _cleanObject(parent, currentObject);
+                        return currentObject;
+                    }
+                }
+                else {
+                    throw SoffitException("Too many closing brackets.", lineNumber);
+                }
+                //Handle footer
+            }
+            else if (tokens[0] == SOFFIT_END) {
+                if (!currentObject->isRoot()) {
+                    throw SoffitException("SOFFIT footer encountered in non-root object.", lineNumber);
+                }
+                break;
+                //Handle object
+            }
+            else if (_isObject(tokens)) {
+                SoffitObject* newObject;
+
+                std::string objType = tokens[0];
+                if (tokens.size() == 2) {
+                    newObject = new SoffitObject(objType);
+                }
+                else {
+                    std::string objName = _stripQuotations(tokens[1]);
+                    objName = _convertFromEscapeSequence(objName, lineNumber);
+                    newObject = new SoffitObject(objType, objName);
+                }
+
+                currentObject->add(newObject);
+                stack.push(newObject);
+                //Handle field
+            }
+            else if (_isField(tokens)) {
+                std::string fieldName = tokens[0];
+                std::string fieldValue = "";
+
+                //Set value, if defined
+                if (tokens.size() > 1)
+                    fieldValue = _stripQuotations(tokens[1]);
+
+                fieldValue = _convertFromEscapeSequence(fieldValue, lineNumber);
+                currentObject->add(new SoffitField(fieldName, fieldValue));
+            }
+            else {
+                throw SoffitException("SOFFIT syntax error.", lineNumber);
+            }
+        }
+
+        //Return null if the requested object was not found
+        return nullptr;
+    }
+
+    void _cleanObject(SoffitObject* root, SoffitObject* objToBeCleaned) {
+        objToBeCleaned->detachFromParant();
+        delete root;
+    }
+
     std::vector<std::string> _getLineTokens(std::string& line, int lineNumber) {
         std::vector<std::string> tokens;
         std::string currentToken = "";
@@ -234,9 +335,63 @@ namespace CPPSoffit {
     }
 
     std::string _getLine(std::istream& stream, int& lineNumber) {
+        while (true) {
+            bool eos = false;
+            std::string line = "";
+            lineNumber++;
+
+            while (true) {
+
+                //try {
+                    int c = stream.get();
+
+                    //Check for EOS;
+                    if (c == -1) {
+                        eos = true;
+                        break;
+                    }
+
+                    //Check for new line
+                    if (c == (int)'\n')
+                        break;
+                    if (c == (int)'\r')
+                        break;
+
+                    line.append(1, (char) c);
+
+                //}
+                //catch (IOException e) {
+                    //Explicitly return null
+                    //return null;
+                //}
+            }
+
+            line = _stripWhitespace(line);
+
+            //Check for EOS and essentially a null line
+            if (eos && line.length() == 0)
+                return "";
+
+            //Return if EOS is reached
+            if (eos)
+                return line;
+
+            //Check for blank line
+            if (line.empty())
+                continue;
+
+            //Check for comments
+            if (line.at(0) == '#')
+                continue;
+
+            //if (line != null)
+                return line;
+        }
+
+        /*
         std::string line;
 
-        while (getline(stream, line)) {
+        while (std::getline(stream, line)) {
             lineNumber++;
             line = _stripWhitespace(line);
             if (line.empty() || line[0] == '#')
@@ -245,6 +400,7 @@ namespace CPPSoffit {
             return line;
         }
         return "";
+        */
     }
 
     //Check if the tokens represent a SOFFIT object
